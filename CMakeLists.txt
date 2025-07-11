@@ -1,14 +1,21 @@
 cmake_minimum_required(VERSION 3.21)
-project(tuner LANGUAGES CXX)
+project(rznz_guitar_tool)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Multimedia)
+# Find Qt modules
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 
-add_executable(tuner
+# Find RtAudio via pkg-config
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(RTAUDIO REQUIRED rtaudio)
+
+# Define executable with consistent name
+set(APP_NAME rznz-guitar-tool)
+add_executable(${APP_NAME}
     main.cpp
     mainwindow.cpp
     mainwindow.h
@@ -16,13 +23,18 @@ add_executable(tuner
     devicechooser.cpp
     devicechooser.h
     devicechooser.ui
-    audioprocessor.h
     audioprocessor.cpp
+    audioprocessor.h
 )
 
-target_link_libraries(tuner
+# Include RtAudio headers
+target_include_directories(${APP_NAME} PRIVATE ${RTAUDIO_INCLUDE_DIRS})
+
+# Link libraries
+target_link_libraries(${APP_NAME} PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    Qt6::Multimedia
+    ${RTAUDIO_LIBRARIES}
 )
+
